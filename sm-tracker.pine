@@ -1,0 +1,113 @@
+//@version=5
+indicator(title="聪明钱追踪 | Smart Money Flow Tracker", 
+         shorttitle="SM Flow", 
+         overlay=true, 
+         timeframe="")
+
+// ============================================================
+// 聪明钱追踪 — Smart Money Flow Tracker
+//
+// 用途：跟踪大单/聪明钱资金流向，识别主力建仓/出货
+// 功能：
+//   1. 大单成交量异常检测（3倍平均）
+//   2. 聪明钱资金流向（正/负）
+//   3. 累积/派发指标
+//   4. 信号标签
+//
+// 作者：一人公司交易团队
+// 版本：1.0
+// ============================================================
+
+// ─── 输入参数 ──────────────────────────────────────
+volume_multiplier   = input.float(2.0, "大单倍数阈值", step=0.5)
+show_signals        = input.bool(true, "显示交易信号")
+show_volume_bars    = input.bool(true, "显示成交量柱")
+volume_ma_length    = input.int(20, "成交量均线周期")
+show_ad_line        = input.bool(true, "显示累积/派发线")
+
+// ─── 成交量分析 ──────────────────────────────────
+avg_volume = ta.sma(volume, volume_ma_length)
+volume_ratio = volume / avg_volume
+is_whale = volume_ratio > volume_multiplier  // 大单/聪明钱
+
+// ─── 价格动作分析 ────────────────────────────────
+// 聪明钱买入：大成交量 + 价格上涨
+smart_buy = is_whale and close > open and close > close[1]
+// 聪明钱卖出：大成交量 + 价格下跌
+smart_sell = is_whale and close < open and close < close[1]
+
+// ─── 累积/派发指标 (A/D) ──────────────────────────
+ad = ta.accdist  // 系统内置 A/D 线
+ad_sma = ta.sma(ad, 14)
+ad_trend_up = ad > ad_sma
+ad_trend_down = ad < ad_sma
+
+// ─── 多时间周期趋势 ──────────────────────────────
+ema_short = ta.ema(close, 9)
+ema_long  = ta.ema(close, 21)
+trend_up  = ema_short > ema_long
+trend_down = ema_short < ema_long
+
+// ─── 信号组合 ────────────────────────────────────
+strong_buy  = smart_buy and ad_trend_up and trend_up
+strong_sell = smart_sell and ad_trend_down and trend_down
+weak_buy    = smart_buy and not (ad_trend_up and trend_up)
+weak_sell   = smart_sell and not (ad_trend_down and trend_down)
+
+// ─── 绘制 ──────────────────────────────────────────
+
+// EMA 线
+plot(ema_short, "EMA9", color=color.blue, linewidth=1)
+plot(ema_long, "EMA21", color=color.orange, linewidth=1)
+
+// 聪明钱买入/卖出标记
+plotshape(series=strong_buy and show_signals, 
+          title="强力买入", location=location.belowbar,
+          style=shape.triangleup, size=size.normal, 
+          color=color.new(color.green, 20))
+plotshape(series=strong_sell and show_signals, 
+          title="强力卖出", location=location.abovebar,
+          style=shape.triangledown, size=size.normal, 
+          color=color.new(color.red, 20))
+plotshape(series=weak_buy and show_signals, 
+          title="弱买入", location=location.belowbar,
+          style=shape.diamond, size=size.tiny, 
+          color=color.new(color.lime, 30))
+plotshape(series=weak_sell and show_signals, 
+          title="弱卖出", location=location.abovebar,
+          style=shape.diamond, size=size.tiny, 
+          color=color.new(color.orange, 30))
+
+// 成交量柱（在副图中使用 overlay=false 时更好）
+// 这里作为 overlay 仅显示标记
+
+// ─── 数据面板 ─────────────────────────────────────
+if barstate.islast
+    var table_sm = table.new(position.bottom_right, 2, 5, 
+                              border_width=1, border_color=color.gray)
+    
+    hdr_clr = color.new(color.purple, 50)
+    cell(table_sm, 0, 0, "聪明钱追踪", bgcolor=hdr_clr, textcolor=color.white)
+    cell(table_sm, 1, 0, "状态", bgcolor=hdr_clr, textcolor=color.white)
+    
+    cell(table_sm, 0, 1, "成交量比")
+    cell(table_sm, 1, 1, str.tostring(volume_ratio, "#.##x"), textcolor=is_whale ? color.yellow : color.white)
+    
+    cell(table_sm, 0, 2, "A/D 趋势")
+    cell(table_sm, 1, 2, ad_trend_up ? "累积 ↑" : "派发 ↓", 
+         textcolor=ad_trend_up ? color.green : color.red)
+    
+    cell(table_sm, 0, 3, "均线趋势")
+    cell(table_sm, 1, 3, trend_up ? "多头 ↑" : "空头 ↓", 
+         textcolor=trend_up ? color.green : color.red)
+    
+    signal_text = strong_buy ? "🟢 强买入" : strong_sell ? "🔴 强卖出" : "⚪ 观望"
+    signal_clr  = strong_buy ? color.green : strong_sell ? color.red : color.gray
+    cell(table_sm, 0, 4, "综合信号", bgcolor=signal_clr, textcolor=color.white)
+    cell(table_sm, 1, 4, signal_text, bgcolor=signal_clr, textcolor=color.white)
+
+// ─── 告警 ──────────────────────────────────────────
+alertcondition(strong_buy, title="聪明钱强力买入", 
+               message="强力买入: {{ticker}} 成交量 {{plot(\"成交量比\")}}x 均价")
+alertcondition(strong_sell, title="聪明钱强力卖出", 
+               message="强力卖出: {{ticker}} 成交量 {{plot(\"成交量比\")}}x 均价")

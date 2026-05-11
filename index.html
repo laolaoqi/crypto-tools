@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>双枪交易工具包 | 一人公司出品</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f0f1a; color: #e0e0e0; line-height: 1.6; }
+.container { max-width: 800px; margin: 0 auto; padding: 20px; }
+header { text-align: center; padding: 60px 20px 40px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); }
+header h1 { font-size: 2.2em; color: #fff; margin-bottom: 10px; }
+header p { color: #8892b0; font-size: 1.1em; }
+.badge { display: inline-block; background: #64ffda22; color: #64ffda; padding: 4px 12px; border-radius: 20px; font-size: 0.8em; border: 1px solid #64ffda44; margin-top: 10px; }
+.products { display: grid; gap: 24px; margin: 40px 0; }
+.card { background: #1a1a2e; border-radius: 12px; padding: 28px; border: 1px solid #2a2a4a; transition: border-color 0.2s; }
+.card:hover { border-color: #64ffda44; }
+.card h2 { color: #64ffda; font-size: 1.4em; margin-bottom: 6px; }
+.card .price { font-size: 1.8em; font-weight: bold; color: #fff; margin: 10px 0; }
+.card .price small { font-size: 0.5em; color: #8892b0; font-weight: normal; }
+.card ul { list-style: none; margin: 16px 0; }
+.card ul li { padding: 6px 0; padding-left: 20px; position: relative; color: #c0c0d0; }
+.card ul li::before { content: '▸'; position: absolute; left: 0; color: #64ffda; }
+.payment-box { background: #16213e; border-radius: 12px; padding: 28px; margin: 40px 0; text-align: center; border: 1px solid #2a2a4a; }
+.payment-box h3 { color: #64ffda; margin-bottom: 10px; }
+.wallet-address { background: #0f0f1a; padding: 14px; border-radius: 8px; font-family: monospace; font-size: 0.85em; word-break: break-all; color: #fff; margin: 12px 0; border: 1px dashed #2a2a4a; cursor: pointer; user-select: all; }
+.wallet-address:hover { background: #1a1a2e; border-color: #64ffda44; }
+.payment-box .note { color: #8892b0; font-size: 0.85em; margin-top: 12px; }
+.payment-box .step { display: inline-block; background: #64ffda22; color: #64ffda; padding: 2px 10px; border-radius: 12px; font-size: 0.8em; margin-bottom: 8px; }
+.bundle { background: linear-gradient(135deg, #1a2a1a 0%, #0f3460 100%); border-color: #64ffda66; }
+.bundle h2 { color: #ffd700; }
+.bundle .price { color: #ffd700; }
+.bundle-tag { display: inline-block; background: #ffd70022; color: #ffd700; padding: 3px 12px; border-radius: 20px; font-size: 0.75em; border: 1px solid #ffd70044; margin-left: 8px; }
+footer { text-align: center; padding: 40px 20px; color: #444; font-size: 0.85em; }
+.delivery-note { background: #1a1a2e; border-radius: 8px; padding: 16px; margin: 20px 0; border-left: 3px solid #64ffda; }
+.delivery-note p { font-size: 0.9em; color: #a0a0b0; }
+@media (max-width: 600px) { header h1 { font-size: 1.6em; } .card { padding: 20px; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <h1>🛠 双枪交易工具包</h1>
+    <p>TradingView Pine Script 专业指标 · 即插即用</p>
+    <div class="badge">✅ 已实战验证 · 永久使用</div>
+  </div>
+</header>
+
+<div class="container">
+
+<div class="delivery-note">
+  <p>📦 <strong>购买流程：</strong>选好商品 → 按金额打 USDT (ERC-20) 到下面钱包 → 系统自动检测到账 → 发送文件下载链接</p>
+</div>
+
+<div class="products">
+
+  <div class="card">
+    <h2>📊 资金费率套利探测器</h2>
+    <p style="color:#8892b0;font-size:0.9em;">Funding Rate Arbitrage Scout</p>
+    <div class="price">¥25 <small>/ $25 USDT</small></div>
+    <ul>
+      <li>自动识别永续合约正/负费率套利窗口</li>
+      <li>实时费率柱状图 + 移动平均线</li>
+      <li>多级告警：普通套利 / 高套利机会</li>
+      <li>支持币安 / OKX / Bybit / Hyperliquid</li>
+      <li>零配置，粘贴到 TradingView 即用</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>🐋 聪明钱流量追踪器</h2>
+    <p style="color:#8892b0;font-size:0.9em;">Smart Money Flow Tracker</p>
+    <div class="price">¥25 <small>/ $25 USDT</small></div>
+    <ul>
+      <li>大单检测：自动识别成交量异常放大</li>
+      <li>累积/派发分析：主力建仓 or 出货</li>
+      <li>三级信号体系：强/弱买卖信号</li>
+      <li>EMA 趋势过滤，避免假信号</li>
+      <li>TradingView 原生告警推送</li>
+    </ul>
+  </div>
+
+  <div class="card bundle">
+    <h2>🎯 双枪套餐 <span class="bundle-tag">省¥11</span></h2>
+    <p style="color:#8892b0;font-size:0.9em;">FRA Scout + SM Tracker 打包</p>
+    <div class="price">¥39 <small>/ $39 USDT</small></div>
+    <ul>
+      <li>两个指标全部带走</li>
+      <li>比单买省 ¥11（省 22%）</li>
+      <li>资金费率 + 聪明钱，双维度覆盖</li>
+    </ul>
+  </div>
+
+</div>
+
+<div class="payment-box">
+  <div class="step">Step 1 · 付款</div>
+  <h3>💳 收款钱包 (USDT ERC-20)</h3>
+  <div class="wallet-address">0xdFc476D7Bb10230B26500eEE24e300B26d253561</div>
+  <p class="note">复制上方地址 → 打开你的钱包 → 转账对应金额的 USDT (ERC-20 网络)</p>
+
+  <div style="margin-top:30px;">
+    <div class="step">Step 2 · 到账确认</div>
+    <h3>✅ 系统自动检测</h3>
+    <p class="note">打款后等待链上确认（通常 1-5 分钟），系统自动检测到账</p>
+  </div>
+
+  <div style="margin-top:30px;">
+    <div class="step">Step 3 · 收货</div>
+    <h3>📬 自动发货</h3>
+    <p class="note">到账确认后，下载链接将自动发送至你打款的钱包地址备注中</p>
+    <p class="note" style="margin-top:8px;">⚠️ 如遇问题，请联系 Telegram: @Liquids8</p>
+  </div>
+</div>
+
+</div>
+
+<footer>
+  <p>一人公司 · AI 全自动出品 · 每卖一份都是纯利润</p>
+</footer>
+
+</body>
+</html>
