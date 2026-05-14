@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>双枪交易工具包 | 一人公司出品</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0f0f1a;color:#e0e0e0;line-height:1.6}
+.container{max-width:800px;margin:0 auto;padding:20px}
+header{text-align:center;padding:60px 20px 40px;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%)}
+header h1{font-size:2.2em;color:#fff;margin-bottom:10px}
+header p{color:#8892b0;font-size:1.1em}
+.badge{display:inline-block;background:#64ffda22;color:#64ffda;padding:4px 12px;border-radius:20px;font-size:0.8em;border:1px solid #64ffda44;margin-top:10px}
+.products{display:grid;gap:24px;margin:40px 0}
+.card{background:#1a1a2e;border-radius:12px;padding:28px;border:1px solid #2a2a4a;transition:border-color 0.2s}
+.card:hover{border-color:#64ffda44}
+.card h2{color:#64ffda;font-size:1.4em;margin-bottom:6px}
+.card .price{font-size:1.8em;font-weight:bold;color:#fff;margin:10px 0}
+.card .price small{font-size:0.5em;color:#8892b0;font-weight:normal}
+.card ul{list-style:none;margin:16px 0}
+.card ul li{padding:6px 0;padding-left:20px;position:relative;color:#c0c0d0}
+.card ul li::before{content:'▸';position:absolute;left:0;color:#64ffda}
+.payment-box{background:#16213e;border-radius:12px;padding:28px;margin:40px 0;text-align:center;border:1px solid #2a2a4a}
+.payment-box h3{color:#64ffda;margin-bottom:10px}
+.wallet-addr{background:#0f0f1a;padding:14px;border-radius:8px;font-family:monospace;font-size:0.85em;word-break:break-all;color:#fff;margin:12px 0;border:1px dashed #2a2a4a}
+.wallet-addr:hover{background:#1a1a2e;border-color:#64ffda44}
+.btn{display:inline-block;background:#64ffda;color:#0f0f1a;padding:14px 32px;border-radius:8px;font-size:1em;font-weight:bold;text-decoration:none;margin:12px 0;transition:0.2s}
+.btn:hover{background:#45e0c0}
+.bundle{background:linear-gradient(135deg,#1a2a1a 0%,#0f3460 100%);border-color:#64ffda66}
+.bundle h2{color:#ffd700}
+.bundle .price{color:#ffd700}
+.steps{background:#1a1a2e;border-radius:12px;padding:24px;margin:20px 0}
+.steps ol{padding-left:20px}
+.steps ol li{margin-bottom:12px;color:#bbb}
+.steps ol li strong{color:#fff}
+footer{text-align:center;padding:40px 20px;color:#444;font-size:0.85em}
+</style>
+</head>
+<body>
+<header>
+<div class="container">
+<h1>🛠 双枪交易工具包</h1>
+<p>TradingView Pine Script 专业指标 · 即插即用</p>
+<div class="badge">✅ 已实战验证 · 永久使用</div>
+</div>
+</header>
+<div class="container">
+<div class="products">
+<div class="card">
+<h2>📊 资金费率套利探测器 (FRA Scout)</h2>
+<div class="price">¥25 <small>/ $25 USDT</small></div>
+<ul>
+<li>自动识别永续合约正/负费率套利窗口</li>
+<li>实时费率柱状图 + 移动平均线</li>
+<li>多级告警：普通套利 / 高套利机会</li>
+<li>支持币安 / OKX / Bybit / Hyperliquid</li>
+<li>TradingView Pine Editor 零配置粘贴即用</li>
+</ul>
+</div>
+<div class="card">
+<h2>🐋 聪明钱流量追踪器 (SM Tracker)</h2>
+<div class="price">¥25 <small>/ $25 USDT</small></div>
+<ul>
+<li>大单检测：自动识别成交量异常放大</li>
+<li>累积/派发分析：主力建仓 or 出货</li>
+<li>三级信号体系：强/弱买卖信号</li>
+<li>EMA 趋势过滤，避免假信号</li>
+<li>TradingView 原生告警推送</li>
+</ul>
+</div>
+<div class="card bundle">
+<h2>🎯 双枪套餐 <span class="badge" style="background:#ffd70022;color:#ffd700">省¥11</span></h2>
+<div class="price">¥39 <small>/ $39 USDT</small></div>
+<ul>
+<li>FRA Scout + SM Tracker 两个全部带走</li>
+<li>比单买省 ¥11（省 22%）</li>
+<li>资金费率 + 聪明钱，双维度覆盖</li>
+</ul>
+</div>
+</div>
+<div class="steps">
+<h3 style="color:#64ffda;margin-bottom:16px">📋 购买流程</h3>
+<ol>
+<li><strong>付款：</strong>复制下方钱包地址，打开你的钱包，转账对应金额的 <strong>USDT (ERC-20)</strong></li>
+<li><strong>等待确认：</strong>链上确认后系统自动检测到账（通常 1-5 分钟）</li>
+<li><strong>领取商品：</strong>到账后点击下方按钮，输入交易哈希即可下载</li>
+</ol>
+</div>
+<div class="payment-box">
+<h3>💳 收款钱包 (USDT ERC-20)</h3>
+<div class="wallet-addr" id="wallet">0xdFc476D7Bb10230B26500eEE24e300B26d253561</div>
+<p class="note" style="color:#8892b0;font-size:0.85em">转账金额：¥25 / $25（单买）或 ¥39 / $39（套餐）</p>
+<a class="btn" href="https://shaggy-ape-59.loca.lt" target="_blank">🔗 已付款？点击此处领取商品 →</a>
+</div>
+<div class="steps" style="margin-top:20px">
+<h3 style="color:#64ffda;margin-bottom:16px">❓ 常见问题</h3>
+<p style="color:#bbb;margin-bottom:8px"><strong style="color:#fff">没收到货？</strong> 联系 Telegram: @Liquids8</p>
+<p style="color:#bbb;margin-bottom:8px"><strong style="color:#fff">只能用 USDT 吗？</strong> 目前只接受 USDT (ERC-20)</p>
+<p style="color:#bbb;margin-bottom:8px"><strong style="color:#fff">能退货吗？</strong> 数字商品一经售出不退不换</p>
+</div>
+</div>
+<footer>
+一人公司 · AI 全自动出品<br>© 2026 — 每卖一份都是纯利润
+</footer>
+</body>
+</html>
