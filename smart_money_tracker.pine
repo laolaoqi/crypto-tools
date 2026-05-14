@@ -1,0 +1,107 @@
+//@version=5
+indicator(title="鑱槑閽辫拷韪?| Smart Money Flow Tracker", 
+         shorttitle="SM Flow", 
+         overlay=true, 
+         timeframe="")
+
+// ============================================================
+// 鑱槑閽辫拷韪?鈥?Smart Money Flow Tracker
+//
+// 鐢ㄩ€旓細璺熻釜澶у崟/鑱槑閽辫祫閲戞祦鍚戯紝璇嗗埆涓诲姏寤轰粨/鍑鸿揣
+// 鍔熻兘锛?//   1. 澶у崟鎴愪氦閲忓紓甯告娴嬶紙3鍊嶅钩鍧囷級
+//   2. 鑱槑閽辫祫閲戞祦鍚戯紙姝?璐燂級
+//   3. 绱Н/娲惧彂鎸囨爣
+//   4. 淇″彿鏍囩
+//
+// 浣滆€咃細涓€浜哄叕鍙镐氦鏄撳洟闃?// 鐗堟湰锛?.0
+// ============================================================
+
+// 鈹€鈹€鈹€ 杈撳叆鍙傛暟 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+volume_multiplier   = input.float(2.0, "澶у崟鍊嶆暟闃堝€?, step=0.5)
+show_signals        = input.bool(true, "鏄剧ず浜ゆ槗淇″彿")
+show_volume_bars    = input.bool(true, "鏄剧ず鎴愪氦閲忔煴")
+volume_ma_length    = input.int(20, "鎴愪氦閲忓潎绾垮懆鏈?)
+show_ad_line        = input.bool(true, "鏄剧ず绱Н/娲惧彂绾?)
+
+// 鈹€鈹€鈹€ 鎴愪氦閲忓垎鏋?鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+avg_volume = ta.sma(volume, volume_ma_length)
+volume_ratio = volume / avg_volume
+is_whale = volume_ratio > volume_multiplier  // 澶у崟/鑱槑閽?
+// 鈹€鈹€鈹€ 浠锋牸鍔ㄤ綔鍒嗘瀽 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+// 鑱槑閽变拱鍏ワ細澶ф垚浜ら噺 + 浠锋牸涓婃定
+smart_buy = is_whale and close > open and close > close[1]
+// 鑱槑閽卞崠鍑猴細澶ф垚浜ら噺 + 浠锋牸涓嬭穼
+smart_sell = is_whale and close < open and close < close[1]
+
+// 鈹€鈹€鈹€ 绱Н/娲惧彂鎸囨爣 (A/D) 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+ad = ta.accdist  // 绯荤粺鍐呯疆 A/D 绾?ad_sma = ta.sma(ad, 14)
+ad_trend_up = ad > ad_sma
+ad_trend_down = ad < ad_sma
+
+// 鈹€鈹€鈹€ 澶氭椂闂村懆鏈熻秼鍔?鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+ema_short = ta.ema(close, 9)
+ema_long  = ta.ema(close, 21)
+trend_up  = ema_short > ema_long
+trend_down = ema_short < ema_long
+
+// 鈹€鈹€鈹€ 淇″彿缁勫悎 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+strong_buy  = smart_buy and ad_trend_up and trend_up
+strong_sell = smart_sell and ad_trend_down and trend_down
+weak_buy    = smart_buy and not (ad_trend_up and trend_up)
+weak_sell   = smart_sell and not (ad_trend_down and trend_down)
+
+// 鈹€鈹€鈹€ 缁樺埗 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+// EMA 绾?plot(ema_short, "EMA9", color=color.blue, linewidth=1)
+plot(ema_long, "EMA21", color=color.orange, linewidth=1)
+
+// 鑱槑閽变拱鍏?鍗栧嚭鏍囪
+plotshape(series=strong_buy and show_signals, 
+          title="寮哄姏涔板叆", location=location.belowbar,
+          style=shape.triangleup, size=size.normal, 
+          color=color.new(color.green, 20))
+plotshape(series=strong_sell and show_signals, 
+          title="寮哄姏鍗栧嚭", location=location.abovebar,
+          style=shape.triangledown, size=size.normal, 
+          color=color.new(color.red, 20))
+plotshape(series=weak_buy and show_signals, 
+          title="寮变拱鍏?, location=location.belowbar,
+          style=shape.diamond, size=size.tiny, 
+          color=color.new(color.lime, 30))
+plotshape(series=weak_sell and show_signals, 
+          title="寮卞崠鍑?, location=location.abovebar,
+          style=shape.diamond, size=size.tiny, 
+          color=color.new(color.orange, 30))
+
+// 鎴愪氦閲忔煴锛堝湪鍓浘涓娇鐢?overlay=false 鏃舵洿濂斤級
+// 杩欓噷浣滀负 overlay 浠呮樉绀烘爣璁?
+// 鈹€鈹€鈹€ 鏁版嵁闈㈡澘 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+if barstate.islast
+    var table_sm = table.new(position.bottom_right, 2, 5, 
+                              border_width=1, border_color=color.gray)
+    
+    hdr_clr = color.new(color.purple, 50)
+    cell(table_sm, 0, 0, "鑱槑閽辫拷韪?, bgcolor=hdr_clr, textcolor=color.white)
+    cell(table_sm, 1, 0, "鐘舵€?, bgcolor=hdr_clr, textcolor=color.white)
+    
+    cell(table_sm, 0, 1, "鎴愪氦閲忔瘮")
+    cell(table_sm, 1, 1, str.tostring(volume_ratio, "#.##x"), textcolor=is_whale ? color.yellow : color.white)
+    
+    cell(table_sm, 0, 2, "A/D 瓒嬪娍")
+    cell(table_sm, 1, 2, ad_trend_up ? "绱Н 鈫? : "娲惧彂 鈫?, 
+         textcolor=ad_trend_up ? color.green : color.red)
+    
+    cell(table_sm, 0, 3, "鍧囩嚎瓒嬪娍")
+    cell(table_sm, 1, 3, trend_up ? "澶氬ご 鈫? : "绌哄ご 鈫?, 
+         textcolor=trend_up ? color.green : color.red)
+    
+    signal_text = strong_buy ? "馃煝 寮轰拱鍏? : strong_sell ? "馃敶 寮哄崠鍑? : "鈿?瑙傛湜"
+    signal_clr  = strong_buy ? color.green : strong_sell ? color.red : color.gray
+    cell(table_sm, 0, 4, "缁煎悎淇″彿", bgcolor=signal_clr, textcolor=color.white)
+    cell(table_sm, 1, 4, signal_text, bgcolor=signal_clr, textcolor=color.white)
+
+// 鈹€鈹€鈹€ 鍛婅 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+alertcondition(strong_buy, title="鑱槑閽卞己鍔涗拱鍏?, 
+               message="寮哄姏涔板叆: {{ticker}} 鎴愪氦閲?{{plot(\"鎴愪氦閲忔瘮\")}}x 鍧囦环")
+alertcondition(strong_sell, title="鑱槑閽卞己鍔涘崠鍑?, 
+               message="寮哄姏鍗栧嚭: {{ticker}} 鎴愪氦閲?{{plot(\"鎴愪氦閲忔瘮\")}}x 鍧囦环")
