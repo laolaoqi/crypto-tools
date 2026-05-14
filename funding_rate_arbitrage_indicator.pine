@@ -1,0 +1,119 @@
+//@version=5
+indicator(title="璧勯噾璐圭巼濂楀埄鎺㈡祴鍣?| Funding Rate Arbitrage Scout", 
+         shorttitle="FRA Scout", 
+         overlay=false, 
+         timeframe="", 
+         timeframe_gaps=false)
+
+// ============================================================
+// 璧勯噾璐圭巼濂楀埄鎺㈡祴鍣?鈥?Funding Rate Arbitrage Scout
+// 
+// 鐢ㄩ€旓細鐩戞帶姘哥画鍚堢害璧勯噾璐圭巼锛岃瘑鍒璐圭巼鍋氱┖/璐熻垂鐜囧仛澶氭満浼?// 閫傜敤骞冲彴锛氬竵瀹夈€丅ybit銆丱KX銆丠yperliquid 绛?USDT 姘哥画鍚堢害
+// 浣滆€咃細涓€浜哄叕鍙镐氦鏄撳洟闃?// 鐗堟湰锛?.0
+// ============================================================
+
+// 鈹€鈹€鈹€ 杈撳叆鍙傛暟 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+show_funding_rate     = input.bool(true,    "鏄剧ず璧勯噾璐圭巼")
+show_funding_ma       = input.bool(true,    "鏄剧ず璐圭巼绉诲姩骞冲潎绾?)
+funding_ma_length     = input.int(8,        "璐圭巼鍧囩嚎鍛ㄦ湡")
+arbitrage_threshold   = input.float(0.01,   "濂楀埄闃堝€?(%)", step=0.005)
+show_signal_alerts    = input.bool(true,    "鏄剧ず淇″彿鏍囩")
+show_background       = input.bool(true,    "鏄剧ず鑳屾櫙鑹?)
+
+// 鈹€鈹€鈹€ 鑾峰彇璧勯噾璐圭巼鏁版嵁 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+// 娉ㄦ剰锛歍radingView 鍘熺敓鏀寔 funding_rate锛屽彲鐩存帴璋冪敤
+funding_rate = request.security(syminfo.tickerid, "1D", 
+                                fundings_rate(funding_field="fundingRate")) * 100
+
+// 閮ㄥ垎浜ゆ槗瀵瑰彲鑳芥湁 8h 璐圭巼锛孴radingView 鍙兘浠?1d 鎻愪緵
+// 澶囬€夋柟妗堬細鎵嬪姩璁＄畻 8h 璐圭巼
+funding_8h = request.security(syminfo.tickerid, timeframe.period,
+                              fundings_rate(funding_field="fundingRate")) * 100
+
+// 鈹€鈹€鈹€ 璁＄畻鎸囨爣 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+funding_ma = ta.sma(funding_rate, funding_ma_length)
+
+// 鍒ゆ柇濂楀埄鏂瑰悜
+is_positive_arb = funding_rate > arbitrage_threshold   // 姝ｈ垂鐜?鈫?鍋氱┖鏈夋敹鐩?is_negative_arb = funding_rate < -arbitrage_threshold  // 璐熻垂鐜?鈫?鍋氬鏈夋敹鐩?is_high_arb     = math.abs(funding_rate) > arbitrage_threshold * 2  // 楂樺鍒╂満浼?
+// 鍧囩嚎绌胯秺淇″彿
+cross_above_ma = ta.crossunder(funding_rate, funding_ma)  // 璐圭巼璺岀牬鍧囩嚎 鈫?鍙兘杞礋
+cross_below_ma = ta.crossover(funding_rate, funding_ma)   // 璐圭巼绐佺牬鍧囩嚎 鈫?鍙兘杞
+
+// 鈹€鈹€鈹€ 缁樺埗 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+hline(0, "闆剁嚎", color=color.gray, linestyle=hline.style_dashed)
+hline(arbitrage_threshold, "闃堝€间笂", color=color.new(color.green, 70))
+hline(-arbitrage_threshold, "闃堝€间笅", color=color.new(color.red, 70))
+
+// 璧勯噾璐圭巼鏌辩姸鍥?bar_color = funding_rate > 0 ? color.green : color.red
+plot(funding_rate, "璧勯噾璐圭巼 (%)", color=bar_color, style=plot.style_histogram, 
+     linewidth=2, trackprice=true)
+
+// 绉诲姩骞冲潎绾?plot(funding_ma, "璐圭巼 MA", color=color.blue, linewidth=1)
+
+// 鈹€鈹€鈹€ 淇″彿鏍囩 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+if show_signal_alerts
+    // 鍋氱┖淇″彿锛氭璐圭巼瓒呰繃闃堝€?    if is_positive_arb
+        label.new(bar_index, funding_rate, 
+                  text="鍋氱┖\n璐圭巼 " + str.tostring(funding_rate, "#.##%"), 
+                  style=label.style_label_down, color=color.new(color.red, 40),
+                  textcolor=color.white, size=size.small)
+    
+    // 鍋氬淇″彿锛氳礋璐圭巼浣庝簬璐熼槇鍊?    if is_negative_arb
+        label.new(bar_index, funding_rate, 
+                  text="鍋氬\n璐圭巼 " + str.tostring(funding_rate, "#.##%"), 
+                  style=label.style_label_up, color=color.new(color.green, 40),
+                  textcolor=color.white, size=size.small)
+    
+    // 楂樺鍒╂満浼?    if is_high_arb
+        label.new(bar_index, funding_rate, 
+                  text="楂樺鍒?\n" + str.tostring(math.abs(funding_rate), "#.##%"), 
+                  style=label.style_label_center, color=color.new(color.purple, 50),
+                  textcolor=color.white, size=size.small)
+
+// 鈹€鈹€鈹€ 鑳屾櫙鑹?鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+if show_background
+    bgcolor(is_positive_arb ? color.new(color.red, 90) : na)
+    bgcolor(is_negative_arb ? color.new(color.green, 90) : na)
+    bgcolor(is_high_arb ? color.new(color.purple, 85) : na)
+
+// 鈹€鈹€鈹€ 鏁版嵁琛?鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+if barstate.islast
+    var table_info = table.new(position.top_right, 4, 4, 
+                               border_width=1, border_color=color.gray,
+                               frame_width=1, frame_color=color.gray)
+    
+    header_color = color.new(color.blue, 60)
+    cell(tabela_id=table_info, column=0, row=0, text="鎸囨爣", 
+         bgcolor=header_color, textcolor=color.white)
+    cell(tabela_id=table_info, column=1, row=0, text="鍊?, 
+         bgcolor=header_color, textcolor=color.white)
+    cell(tabela_id=table_info, column=2, row=0, text="鐘舵€?, 
+         bgcolor=header_color, textcolor=color.white)
+    cell(tabela_id=table_info, column=3, row=0, text="寤鸿", 
+         bgcolor=header_color, textcolor=color.white)
+    
+    cell(tabela_id=table_info, column=0, row=1, text="褰撳墠璐圭巼")
+    cell(tabela_id=table_info, column=1, row=1, text=str.tostring(funding_rate, "#.####%"))
+    cell(tabela_id=table_info, column=2, row=1, text=funding_rate > 0 ? "姝ｈ垂鐜? : "璐熻垂鐜?,
+         textcolor=funding_rate > 0 ? color.red : color.green)
+    
+    if is_positive_arb
+        cell(tabela_id=table_info, column=3, row=1, text="鑰冭檻鍋氱┖", textcolor=color.red)
+    else if is_negative_arb
+        cell(tabela_id=table_info, column=3, row=1, text="鑰冭檻鍋氬", textcolor=color.green)
+    else
+        cell(tabela_id=table_info, column=3, row=1, text="瑙傛湜", textcolor=color.gray)
+    
+    cell(tabela_id=table_info, column=0, row=2, text="璐圭巼 MA")
+    cell(tabela_id=table_info, column=1, row=2, text=str.tostring(funding_ma, "#.####%"))
+    cell(tabela_id=table_info, column=2, row=2, text=funding_rate > funding_ma ? "涓婄┛" : "涓嬬牬")
+    
+    cell(tabela_id=table_info, column=0, row=3, text="濂楀埄闃堝€?)
+    cell(tabela_id=table_info, column=1, row=3, text=str.tostring(arbitrage_threshold, "#.##%"))
+    cell(tabela_id=table_info, column=2, row=3, text=is_high_arb ? "楂樺鍒╁尯" : "姝ｅ父鍖?)
+    cell(tabela_id=table_info, column=3, row=3, text=is_high_arb ? "鈿狅笍 娉ㄦ剰" : "")
+
+// 鈹€鈹€鈹€ 鍛婅鏉′欢 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+alertcondition(is_positive_arb, title="姝ｈ垂鐜囨姤璀?, message="姝ｈ垂鐜囷細{{ticker}} 璐圭巼 {{plot(\"璧勯噾璐圭巼 (%)\")}}%")
+alertcondition(is_negative_arb, title="璐熻垂鐜囨姤璀?, message="璐熻垂鐜囷細{{ticker}} 璐圭巼 {{plot(\"璧勯噾璐圭巼 (%)\")}}%")
+alertcondition(is_high_arb, title="楂樺鍒╂満浼?, message="楂樺鍒╋細{{ticker}} 璐圭巼 {{plot(\"璧勯噾璐圭巼 (%)\")}}%")
